@@ -386,6 +386,24 @@ void XrCore::pulseAtHead() {
     m_handAtHead = atHead;
 }
 
+// Which controller profile the runtime picked. Runtimes such as SteamVR map
+// unlisted controllers (e.g. PlayStation VR2 Sense) onto one of ours; the log
+// shows which, so missing bindings can be traced.
+void XrCore::logInteractionProfiles() {
+    if (m_session == XR_NULL_HANDLE) return;
+    for (int hand = 0; hand < 2; ++hand) {
+        if (m_handPath[hand] == XR_NULL_PATH) continue;
+        XrInteractionProfileState state{XR_TYPE_INTERACTION_PROFILE_STATE};
+        if (XR_FAILED(xrGetCurrentInteractionProfile(m_session, m_handPath[hand], &state))) continue;
+        char name[XR_MAX_PATH_LENGTH] = "none";
+        uint32_t length = 0;
+        if (state.interactionProfile != XR_NULL_PATH &&
+            XR_FAILED(xrPathToString(m_instance, state.interactionProfile, sizeof(name), &length, name)))
+            std::snprintf(name, sizeof(name), "unknown");
+        CVR_INFO("xr.profile", "hand=%s profile=%s", hand ? "right" : "left", name);
+    }
+}
+
 void XrCore::destroyActions() {
     for (auto& space : m_aimSpace)
         if(space!=XR_NULL_HANDLE){xrDestroySpace(space);space=XR_NULL_HANDLE;}

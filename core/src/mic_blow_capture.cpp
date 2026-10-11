@@ -7,6 +7,7 @@
 #include <audioclient.h>
 #include <mmreg.h>
 
+#include <atomic>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
@@ -17,7 +18,25 @@
 #include <vector>
 
 namespace cemuvr {
+
+// Shared by the owner and the worker. The worker keeps its own reference, so a
+// worker that is still inside a slow audio driver call after stop() gave up on
+// it never touches freed memory.
+struct MicBlowCapture::State {
+    std::wstring wanted;
+    float minLevelDb{MicBlowDetector::kDefaultMinLevelDb};
+    HANDLE wake{nullptr};                       // manual reset: set once on stop
+    std::atomic<bool> stop{false};
+    std::atomic<bool> blowing{false};
+    std::atomic<unsigned long long> lastDemand{0};   // GetTickCount64 of the last game query
+    ~State() { if (wake) CloseHandle(wake); }
+};
+
 namespace {
+
+constexpr ULONGLONG kOpenWithin = 1000;     // a query this recent opens the device
+constexpr ULONGLONG kCloseAfter = 5000;     // no query for this long closes it again
+constexpr DWORD kStopWait = 500;            // stop() never waits longer
 
 // PKEY_Device_FriendlyName, spelled out so no GUID library is needed.
 const PROPERTYKEY kFriendlyName = {
@@ -137,6 +156,11 @@ std::string hex(HRESULT hr) {
     return text;
 }
 
+bool demandWithin(const MicBlowCapture::State& state, ULONGLONG window) {
+    const ULONGLONG last = state.lastDemand.load(std::memory_order_acquire);
+    return last && GetTickCount64() - last <= window;
+}
+
 // Everything one capture session holds, released in reverse order.
 struct Session {
     IMMDeviceEnumerator* devices{nullptr};
@@ -157,18 +181,17 @@ struct Session {
     }
 };
 
-// Runs until asked to stop (returns "") or until the device fails (returns why).
-std::string listen(const std::wstring& wanted, float minLevelDb, HANDLE wake,
-                   const std::atomic<bool>& stop, std::atomic<bool>& blowing,
-                   uint32_t& onsets, uint32_t& vetoes) {
+// Listens while the game keeps asking. Returns "" when stopping, "idle" when
+// the game stopped asking, otherwise why the device failed.
+std::string listen(MicBlowCapture::State& state, uint32_t& onsets, uint32_t& vetoes) {
     Session s;
     HRESULT hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL,
                                   __uuidof(IMMDeviceEnumerator), reinterpret_cast<void**>(&s.devices));
     if (FAILED(hr)) return "device_list hr=" + hex(hr);
     std::wstring name;
-    s.device = pickDevice(s.devices, wanted, name);
-    if (!s.device) return wanted.empty() ? "no_default_recording_device"
-                                         : "no_recording_device_named=\"" + utf8(wanted) + "\"";
+    s.device = pickDevice(s.devices, state.wanted, name);
+    if (!s.device) return state.wanted.empty() ? "no_default_recording_device"
+                                               : "no_recording_device_named=\"" + utf8(state.wanted) + "\"";
     hr = s.device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, nullptr, reinterpret_cast<void**>(&s.client));
     if (hr == E_ACCESSDENIED) return "access_denied -- Windows privacy: microphone access for desktop apps";
     if (FAILED(hr)) return "activate hr=" + hex(hr);
@@ -184,21 +207,21 @@ std::string listen(const std::wstring& wanted, float minLevelDb, HANDLE wake,
     if (!s.ready || FAILED(s.client->SetEventHandle(s.ready))) return "event";
     hr = s.client->GetService(__uuidof(IAudioCaptureClient), reinterpret_cast<void**>(&s.capture));
     if (FAILED(hr)) return "capture_service hr=" + hex(hr);
-    MicBlowDetector detector(s.format->nSamplesPerSec, minLevelDb);
+    MicBlowDetector detector(s.format->nSamplesPerSec, state.minLevelDb);
     hr = s.client->Start();
     if (FAILED(hr)) return "start hr=" + hex(hr);
     s.started = true;
-    CVR_INFO("mic.capture", "listening=1 device=\"%s\" rate=%lu channels=%u format=%s minLevel=%.1f -- analysed in memory, nothing recorded",
+    CVR_INFO("mic.capture", "listening=1 reason=level_checks_blowing device=\"%s\" rate=%lu channels=%u format=%s minLevel=%.1f -- analysed in memory, nothing recorded",
              utf8(name).c_str(), (unsigned long)s.format->nSamplesPerSec, (unsigned)s.format->nChannels,
-             sampleName(kind), minLevelDb);
+             sampleName(kind), state.minLevelDb);
 
-    HANDLE waits[2] = {s.ready, wake};
+    HANDLE waits[2] = {s.ready, state.wake};
     std::vector<float> mono;
     ULONGLONG lastAudio = GetTickCount64(), since = 0;
     bool active = false;
     uint32_t seenVetoes = 0, traces = 0;
     MicBlowDetector::Trace trace;
-    while (!stop.load(std::memory_order_acquire)) {
+    while (!state.stop.load(std::memory_order_acquire)) {
         if (WaitForMultipleObjects(2, waits, FALSE, 250) == WAIT_OBJECT_0 + 1) break;
         UINT32 packet = 0;
         while (SUCCEEDED(hr = s.capture->GetNextPacketSize(&packet)) && packet > 0) {
@@ -222,7 +245,7 @@ std::string listen(const std::wstring& wanted, float minLevelDb, HANDLE wake,
             }
         }
         if (FAILED(hr)) {
-            blowing.store(false, std::memory_order_release);
+            state.blowing.store(false, std::memory_order_release);
             return hr == AUDCLNT_E_DEVICE_INVALIDATED ? "device_lost" : "read hr=" + hex(hr);
         }
         // Unpitched sound next to a vowel: speech, not blowing.
@@ -251,16 +274,51 @@ std::string listen(const std::wstring& wanted, float minLevelDb, HANDLE wake,
                          st.eventVoiced);
             }
         }
-        blowing.store(on, std::memory_order_release);
+        state.blowing.store(on, std::memory_order_release);
+        // The game stopped asking: close the device instead of listening on.
+        if (!on && !demandWithin(state, kCloseAfter)) {
+            state.blowing.store(false, std::memory_order_release);
+            return "idle";
+        }
     }
-    blowing.store(false, std::memory_order_release);
+    state.blowing.store(false, std::memory_order_release);
     return {};
+}
+
+void work(std::shared_ptr<MicBlowCapture::State> state) {
+    const HRESULT com = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+    std::string lastProblem;
+    uint32_t onsets = 0, vetoes = 0, opened = 0;
+    while (!state->stop.load(std::memory_order_acquire)) {
+        // Closed until the game checks for blowing.
+        if (!demandWithin(*state, kOpenWithin)) {
+            WaitForSingleObject(state->wake, 100);
+            continue;
+        }
+        ++opened;
+        const std::string problem = listen(*state, onsets, vetoes);
+        state->blowing.store(false, std::memory_order_release);
+        if (state->stop.load(std::memory_order_acquire)) break;
+        if (problem == "idle") {
+            CVR_INFO("mic.capture", "closed=1 reason=no_blow_check_for_5s");
+            lastProblem.clear();
+            continue;
+        }
+        if (problem != lastProblem) {
+            CVR_WARN("mic.capture", "unavailable reason=%s -- retrying every 3 s; the right-hand gesture still works",
+                     problem.c_str());
+            lastProblem = problem;
+        }
+        WaitForSingleObject(state->wake, 3000);
+    }
+    CVR_INFO("mic.capture", "stopped=1 opened=%u blows=%u ignoredSpeech=%u", opened, onsets, vetoes);
+    if (SUCCEEDED(com)) CoUninitialize();
 }
 
 } // namespace
 
 void MicBlowCapture::start() {
-    if (m_thread.joinable()) return;
+    if (m_state) return;
     const wchar_t* setting = _wgetenv(L"CEMUVR_BLOW_MIC");
     std::wstring wanted = setting ? setting : L"";
     while (!wanted.empty() && std::iswspace(wanted.back())) wanted.pop_back();
@@ -272,59 +330,56 @@ void MicBlowCapture::start() {
     }
     if (flag == L"1" || flag == L"on" || flag == L"default") wanted.clear();
 
-    float minLevelDb = MicBlowDetector::kDefaultMinLevelDb;
+    auto state = std::make_shared<State>();
+    state->wanted = wanted;
     if (const char* db = std::getenv("CEMUVR_BLOW_MIC_DB")) {
         char* end = nullptr;
         const float value = std::strtof(db, &end);
-        if (end != db && std::isfinite(value)) minLevelDb = value;
+        if (end != db && std::isfinite(value)) state->minLevelDb = value;
     }
+    state->wake = CreateEventW(nullptr, TRUE, FALSE, nullptr);
+    if (!state->wake) { CVR_WARN("mic.capture", "unavailable reason=event"); return; }
 
-    // The thread runs code from this DLL, so the DLL must outlive it. Pinning
-    // keeps a loader-initiated unload from ever racing the capture thread.
+    // The worker runs code from this DLL, so the DLL must outlive it - also a
+    // worker that stop() had to leave behind. Pinning keeps the loader from
+    // ever unloading the layer underneath it.
     HMODULE self = nullptr;
     GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_PIN,
                        reinterpret_cast<LPCWSTR>(&kFriendlyName), &self);
-
-    m_wake = CreateEventW(nullptr, TRUE, FALSE, nullptr);
-    if (!m_wake) { CVR_WARN("mic.capture", "unavailable reason=event"); return; }
-    m_stop.store(false, std::memory_order_release);
-    m_blowing.store(false, std::memory_order_release);
     try {
-        m_thread = std::thread(&MicBlowCapture::run, this, wanted, minLevelDb);
+        m_thread = std::thread(work, state);
     } catch (...) {
         CVR_WARN("mic.capture", "unavailable reason=thread");
-        CloseHandle(m_wake);
-        m_wake = nullptr;
+        return;
     }
+    m_state = std::move(state);
+    CVR_INFO("mic.capture", "ready=1 -- the microphone opens only while a level checks for blowing");
 }
 
 void MicBlowCapture::stop() {
+    if (!m_state) return;
+    m_state->stop.store(true, std::memory_order_release);
+    SetEvent(m_state->wake);
     if (m_thread.joinable()) {
-        m_stop.store(true, std::memory_order_release);
-        SetEvent(m_wake);
-        m_thread.join();
+        // An audio driver call cannot be interrupted. Never let one block the
+        // render thread: after 500 ms the worker finishes on its own.
+        if (WaitForSingleObject(m_thread.native_handle(), kStopWait) == WAIT_OBJECT_0) {
+            m_thread.join();
+        } else {
+            CVR_WARN("mic.capture", "stop_wait_exceeded=1 -- worker left to finish its driver call");
+            m_thread.detach();
+        }
     }
-    if (m_wake) { CloseHandle(m_wake); m_wake = nullptr; }
-    m_blowing.store(false, std::memory_order_release);
+    m_state->blowing.store(false, std::memory_order_release);
+    m_state.reset();
 }
 
-void MicBlowCapture::run(std::wstring wanted, float minLevelDb) {
-    const HRESULT com = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-    std::string lastProblem;
-    uint32_t onsets = 0, vetoes = 0;
-    while (!m_stop.load(std::memory_order_acquire)) {
-        const std::string problem = listen(wanted, minLevelDb, m_wake, m_stop, m_blowing, onsets, vetoes);
-        m_blowing.store(false, std::memory_order_release);
-        if (m_stop.load(std::memory_order_acquire)) break;
-        if (problem != lastProblem) {
-            CVR_WARN("mic.capture", "unavailable reason=%s -- retrying every 3 s; the right-hand gesture still works",
-                     problem.c_str());
-            lastProblem = problem;
-        }
-        WaitForSingleObject(m_wake, 3000);
-    }
-    CVR_INFO("mic.capture", "stopped=1 blows=%u ignoredSpeech=%u", onsets, vetoes);
-    if (SUCCEEDED(com)) CoUninitialize();
+void MicBlowCapture::noteDemand() {
+    if (m_state) m_state->lastDemand.store(GetTickCount64(), std::memory_order_release);
+}
+
+bool MicBlowCapture::blowing() const {
+    return m_state && m_state->blowing.load(std::memory_order_acquire);
 }
 
 } // namespace cemuvr

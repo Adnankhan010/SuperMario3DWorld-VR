@@ -9,9 +9,9 @@
 - For the default 120 FPS preset, use a 120 Hz headset refresh rate.
 - Close Cemu before starting a VR session.
 
-## Install Alpha 1.6
+## Install Alpha 1.6b
 
-1. Extract `SuperMario3DWorld-VR-Alpha-1.6-install.zip`.
+1. Extract `SuperMario3DWorld-VR-Alpha-1.6b-install.zip`.
 2. Copy its **`Mario3DWorld-VR`** folder into your Cemu folder, beside `Cemu.exe`.
 3. Open that folder and run **`Start-VR.cmd`**. The game starts in diorama mode.
 4. Launch the game from Cemu's game list.
@@ -23,7 +23,7 @@ Cemu.exe, or the standard AppData location, in that order.
 The installation ZIP includes the VR layer. The source ZIP requires a build;
 see [BUILD.md](BUILD.md).
 
-In Captain Toad levels on the European v0 game, the headlamp automatically
+In Captain Toad levels, the headlamp automatically
 follows your headset's look direction in first person. No extra button or
 setting is needed. Other camera modes keep the game's normal lamp direction.
 
@@ -105,9 +105,13 @@ and while you talk, blowing is paused until you have been quiet for a moment.
 This strictness is deliberate, so that talking does not blow in the game. If you
 find it too strict, please report it, or use the right-controller gesture below.
 
+The microphone opens only while a level asks for blowing and closes again
+five seconds after the game stops asking. Before VR starts, on the title screen,
+in menus and in levels without blowing it stays closed. Only then does Windows
+show Cemu as using the microphone.
+
 The audio is analysed in memory in 10 ms steps and then discarded. The mod does
-not record, save or send audio. Windows shows Cemu as using the microphone
-during the session. To change this, edit `Start-VR.cmd`:
+not record, save or send audio. To change the microphone, edit `Start-VR.cmd`:
 
 - `set "CEMUVR_BLOW_MIC=0"` switches microphone detection off.
 - `set "CEMUVR_BLOW_MIC=Headset"` uses the first recording device whose name
@@ -126,9 +130,8 @@ to stop. This works alongside the microphone, without a mapped button.
 The left-controller D-pad gesture is unchanged. Tracking/focus loss cancels the
 gesture, and it requires a new short hold after tracking returns.
 
-Blowing by microphone and gesture is currently enabled for the locally verified
-European v0 game module. Other modules retain their native microphone input.
-Microphone blowing was tested with a Quest 3 through Virtual Desktop.
+Blowing by microphone and gesture is enabled for the European v0 and USA v1
+games. Microphone blowing was tested with a Quest 3 through Virtual Desktop.
 
 ### Camera behaviour with either input device
 
@@ -177,5 +180,4 @@ Release the trigger after touching before using it to jump again.
 
 The hand is the game's own live 3D model. No game graphics are extracted, cached
 or included in this mod. The ring, hand and activation use the same collision
-point. The new native touch hooks currently target the European base game; other
-executables retain their existing touch controls and hints.
+point. The native touch hooks target the European v0 and USA v1 games.

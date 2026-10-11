@@ -693,6 +693,9 @@ bool XrCore::pollEvents() {
                 CVR_WARN("xr.event", "kind=instance_loss_pending -- Instanz wird abgebaut, Phase 1 beginnt neu");
                 loseInstance("instance_loss_pending");
                 return false;
+            case XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED:
+                logInteractionProfiles();
+                break;
             case XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING: {
                 auto* e = (XrEventDataReferenceSpaceChangePending*)&ev;
                 CVR_INFO("xr.event", "kind=refspace_change type=%d valid=%u changeTime=%lld",

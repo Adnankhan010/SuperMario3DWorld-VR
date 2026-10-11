@@ -1,6 +1,6 @@
 # Super Mario 3D World VR
 
-**Alpha 1.6** · Windows x64 · Cemu · OpenXR
+**Alpha 1.6b** · Windows x64 · Cemu · OpenXR
 
 Stereo rendering and six-degree-of-freedom head tracking for the Wii U
 version of **Super Mario 3D World**. Play with a gamepad or VR controllers
@@ -25,6 +25,15 @@ world map use the diorama view.
 All modes include room-anchored menus and HUD, head tracking, and VR camera
 framing for the opening cinematic.
 
+## New in Alpha 1.6b
+
+- **USA v1:** touch platforms, blowing and the head-directed Captain Toad lamp
+  now also work with the USA v1 game. Its game code is identical to the
+  European v0 game's code.
+- **Microphone only where it is needed:** the microphone opens only while a
+  level asks for blowing and closes again a few seconds after you leave it. On
+  the title screen, in menus and in levels without blowing it stays closed.
+
 ## New in Alpha 1.6
 
 - **Touch platforms with VR controllers.** Hold the right grip to aim a blue
@@ -36,12 +45,11 @@ framing for the opening cinematic.
   controllers and with a gamepad; no microphone setup in Cemu is needed.
 - The microphone is analysed in memory only; nothing is recorded, saved or sent.
   It can be switched off in `Start-VR.cmd`.
-- Touch and blowing are available for the European v0 game.
 
 ## New in Alpha 1.5
 
 - In the Captain Toad levels, the first-person headlamp follows your headset's
-  horizontal and vertical look direction. Available for the European v0 game.
+  horizontal and vertical look direction.
 - Keeps the lamp's position, brightness, range and wall collision, along with
   the existing first-person lamp-effect visibility fix.
 - Fixes VR startup when Cemu keeps settings.xml beside Cemu.exe, so the
@@ -97,7 +105,7 @@ see [known issues](KNOWN-ISSUES.md).
 
 ## Get started
 
-1. Download the **Alpha 1.6 installation ZIP** from [Releases](../../releases).
+1. Download the **Alpha 1.6b installation ZIP** from [Releases](../../releases).
 2. Place its `Mario3DWorld-VR` folder beside `Cemu.exe`.
 3. Close Cemu and run `Start-VR.cmd`.
 4. Open Super Mario 3D World in Cemu and play with your gamepad or VR controllers.

@@ -810,6 +810,84 @@ void readLightProbe(uint64_t generation) {
     if(!shown)CVR_INFO("light.diff","identical=1 windows=3x22");
 }
 
+// The game's microphone queries, counted by the blow hooks in block "MBQ1".
+// The microphone opens only while game objects in a level check for blowing;
+// the title screen's own check and the constant 'loud' queries do not count.
+static void noteMarioMicDemand() {
+    constexpr int kCallers=64,kCounts=6,kObjectBlow=5;
+    static uint8_t* block=nullptr;static uint8_t* previousBase=nullptr;static ULONGLONG nextScan=0;
+    static uint32_t last[kCounts]{};static uint32_t reported[kCounts]{};static bool seen=false;
+    static ULONGLONG nextReport=0;static int reports=0;
+    static uint32_t callerKey[kCallers]{},callerReported[kCallers]{};
+    auto* base=g.bridge.guestMemoryBase();
+    if(base!=previousBase){block=nullptr;previousBase=base;nextScan=0;seen=false;}
+    if(!base)return;
+    // signature, version, total, raw, loud, filtered, detected, object blow checks,
+    // 64 x {caller key, count}, sentinel
+    constexpr size_t table=8+4*kCounts,bytes=table+kCallers*8+4;
+    const uint8_t signature[]={0x4D,0x42,0x51,0x31,0,0,0,5};
+    if(!block) {
+        if(GetTickCount64()<nextScan)return;
+        nextScan=GetTickCount64()+2000;
+        for(uintptr_t off=0x01800000;off<0x01a00000;) {
+            MEMORY_BASIC_INFORMATION mbi{};if(!VirtualQuery(base+off,&mbi,sizeof(mbi)))break;
+            const uintptr_t next=uintptr_t(mbi.BaseAddress)+mbi.RegionSize-uintptr_t(base);
+            if(next<=off)break;
+            const uintptr_t end=(std::min)(next,uintptr_t(0x01a00000));
+            if(mbi.State==MEM_COMMIT && (mbi.Protect&(PAGE_READWRITE|PAGE_EXECUTE_READWRITE)) && !(mbi.Protect&PAGE_GUARD))
+                for(uintptr_t p=off;p+bytes<=end;p+=4)if(!std::memcmp(base+p,signature,8)){block=base+p;break;}
+            if(block)break;off=next;
+        }
+        if(!block)return;
+        CVR_INFO("mic.demand","block=%08X -- the microphone opens only while a level checks for blowing",
+                 (unsigned)(block-base));
+    }
+    MEMORY_BASIC_INFORMATION mbi{};
+    if(!VirtualQuery(block,&mbi,sizeof(mbi)) || mbi.State!=MEM_COMMIT ||
+       !(mbi.Protect&(PAGE_READWRITE|PAGE_EXECUTE_READWRITE)) || (mbi.Protect&PAGE_GUARD) ||
+       uintptr_t(block)+bytes>uintptr_t(mbi.BaseAddress)+mbi.RegionSize || std::memcmp(block,signature,8)) {block=nullptr;return;}
+    uint32_t counts[kCounts];
+    for(int i=0;i<kCounts;++i){uint32_t raw;std::memcpy(&raw,block+8+4*i,4);counts[i]=_byteswap_ulong(raw);}
+    if(!seen){seen=true;std::memcpy(last,counts,sizeof(last));std::memcpy(reported,counts,sizeof(reported));return;}
+    if(counts[kObjectBlow]!=last[kObjectBlow])g.xr.noteMicDemand();
+    std::memcpy(last,counts,sizeof(last));
+    // While a level checks for blowing: every 10 s which game functions asked,
+    // stamped with the wall clock so a session can be matched to its levels.
+    const ULONGLONG now=GetTickCount64();
+    if(now<nextReport)return;
+    nextReport=now+10000;
+    const bool logged=counts[kObjectBlow]!=reported[kObjectBlow] && reports<1440;
+    SYSTEMTIME st{};GetLocalTime(&st);
+    if(logged) {
+        ++reports;
+        CVR_INFO("mic.demand","time=%02u:%02u:%02u queries_10s object_blow=%u total=%u raw=%u loud=%u filtered=%u detected=%u",
+                 st.wHour,st.wMinute,st.wSecond,counts[kObjectBlow]-reported[kObjectBlow],
+                 counts[0]-reported[0],counts[1]-reported[1],counts[2]-reported[2],
+                 counts[3]-reported[3],counts[4]-reported[4]);
+    }
+    std::memcpy(reported,counts,sizeof(reported));
+    // Which game function asked: return address of the caller, getter as prefix
+    // (R raw, L loud, F filtered, D detected), sixteen callers per line.
+    static const char getter[4]={'R','L','F','D'};
+    char line[16*22+1]{};size_t used=0;int inLine=0;
+    for(int i=0;i<kCallers;++i) {
+        uint32_t raw;std::memcpy(&raw,block+table+8*i,4);const uint32_t key=_byteswap_ulong(raw);
+        std::memcpy(&raw,block+table+4+8*i,4);const uint32_t count=_byteswap_ulong(raw);
+        if(!key)continue;
+        if(callerKey[i]!=key)
+            CVR_INFO("mic.caller","time=%02u:%02u:%02u new=%c%08X",st.wHour,st.wMinute,st.wSecond,
+                     getter[key&3],key&~3u);
+        const uint32_t delta=count-(callerKey[i]==key?callerReported[i]:0u);
+        callerKey[i]=key;callerReported[i]=count;
+        if(!delta || !logged)continue;
+        const int n=std::snprintf(line+used,sizeof(line)-used," %c%08X=%u",getter[key&3],key&~3u,delta);
+        if(n>0)used=(std::min)(used+size_t(n),sizeof(line)-1);
+        if(++inLine==16){CVR_INFO("mic.callers","time=%02u:%02u:%02u%s",st.wHour,st.wMinute,st.wSecond,line);
+                         used=0;inLine=0;line[0]=0;}
+    }
+    if(inLine)CVR_INFO("mic.callers","time=%02u:%02u:%02u%s",st.wHour,st.wMinute,st.wSecond,line);
+}
+
 // Touch-only aim history. Never substitutes the grip pose used by gestures.
 static uint8_t* marioTouchMailbox() {
     static uint8_t* packet=nullptr;static uint8_t* previousBase=nullptr;static ULONGLONG nextScan=0;
@@ -853,6 +931,7 @@ static void publishMarioAim(uint32_t sequence,const CemuVR_Pose& anchor,float un
 }
 
 void publishReferencePose(uint64_t generation) {
+    noteMarioMicDemand();
     // Enabled by default for the Mario release; an environment override remains available.
     if(!envFlag("CEMUVR_REFERENCE_POSE_EXPERIMENT",true))return;
     static const float unitsPerMeter=[] {

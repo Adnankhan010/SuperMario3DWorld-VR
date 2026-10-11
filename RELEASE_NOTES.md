@@ -1,3 +1,22 @@
+# Alpha 1.6b
+
+Hotfix for the USA v1 game.
+
+- Touch platforms, blowing and the head-directed Captain Toad lamp now also
+  work with the USA v1 game. Its game code was compared byte for byte with the
+  European v0 game's code and is identical.
+- The microphone now opens only while a level asks for blowing and closes
+  again five seconds after the game stops asking. Before VR starts, on the
+  title screen, on the world map and in levels without blowing it stays
+  closed.
+
+Tested in the headset (Quest 3 through Virtual Desktop): blowing in a level
+with blowing on the European v0 game. The microphone stayed closed on the title
+screen and the world map. The USA v1 game was started with VR in the test
+setup. All Alpha 1.6 features remain included.
+
+---
+
 # Alpha 1.6
 
 ## Touch platforms with VR controllers

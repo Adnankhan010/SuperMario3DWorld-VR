@@ -294,6 +294,9 @@ public:
     // Steigt mit jedem abgeholten Satz. Der Gast erkennt daran einen alten.
     uint32_t controllerGeneration() const { return m_handGeneration; }
     bool controllersReady() const { return m_actionsReady; }
+    // The game queried its microphone (counted by the blow hooks). Only then
+    // does the microphone open; five seconds without a query close it again.
+    void noteMicDemand() { m_micBlow.noteDemand(); }
 
     // Vom Spielprofil gelieferte Anpassung fuer das naechste endFrame.
     // Der Kern wendet sie auf die Projektionsebene DIESES Auges an.
@@ -406,6 +409,7 @@ private:
     bool createActions();
     void syncActions();
     void pulseAtHead();
+    void logInteractionProfiles();
     void destroyActions();
 
     XrActionSet m_actionSet{XR_NULL_HANDLE};

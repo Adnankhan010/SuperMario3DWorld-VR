@@ -3,7 +3,7 @@ from pathlib import Path
 import re,struct,math,itertools,random
 ROOT=Path(__file__).resolve().parents[1]
 s=(ROOT/'graphicPacks/Mario3DWorld_VR/patch_vr.asm').read_text(encoding='utf-8')
-body=s.split('[Mario3DWorld_Touch_EU_v0]')[1].split('[Mario3DWorld_Touch_Passthrough]')[0]
+body=s.split('[Mario3DWorld_Touch_EU_v0_US_v1]')[1]
 for label,n in [('tcPadReady',1),('tcButtons',3),('mtPad',40),('mbState',3),('mrCullEpoch',1),('mrSceneClass',1),('rrSlot',1),('mtNearState',4),('mtControl',18),('rrPoseLatch0',98)]:
  body+='\n'+label+':\n'+'.int 0\n'*n
 body += "\n"+s[s.index('mtMotionRightDoneBit1:'):s.index('mtMotionRightDoneBit3:')]+"mtMotionRightDoneBit3:\nblr\n"
