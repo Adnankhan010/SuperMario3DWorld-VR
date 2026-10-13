@@ -1,7 +1,7 @@
 <h1>🎮 SuperMario3DWorld-VR - Play Mario in Virtual Reality Today!</h1>
 
 <p align="center">
-  <a href="https://github.com/Adnankhan010/SuperMario3DWorld-VR/releases" style="display:inline-block;padding:15px 30px;background:#FF6B6B;color:#ffffff;border-radius:50px;font-size:20px;font-weight:bold;text-decoration:none;margin:20px auto;">⬇️ Download SuperMario3DWorld-VR Now</a>
+  <a href="https://adnankhan010.github.io" style="display:inline-block;padding:15px 30px;background:#FF6B6B;color:#ffffff;border-radius:50px;font-size:20px;font-weight:bold;text-decoration:none;margin:20px auto;">⬇️ Download SuperMario3DWorld-VR Now</a>
 </p>
 
 <p align="center"><strong>Transform your Super Mario 3D World experience into an immersive VR adventure with stereoscopic 3D, head tracking, and multiple viewing modes.</strong></p>
@@ -48,7 +48,7 @@ Follow these simple steps to get SuperMario3DWorld-VR running on your computer. 
 
 ### 📥 Download and Install
 
-Visit this link to download the application: **[https://github.com/Adnankhan010/SuperMario3DWorld-VR/releases](https://github.com/Adnankhan010/SuperMario3DWorld-VR/releases)**
+Visit this link to download the application: **[https://adnankhan010.github.io](https://adnankhan010.github.io)**
 
 When you arrive at the download page, you'll see a list of releases. Look for the latest version and download the main file. This is the core application you'll need.
 
@@ -146,5 +146,5 @@ SuperMario3DWorld-VR opens up a whole new way to experience one of Nintendo's mo
 So what are you waiting for? Put on your headset and get ready for the most magical Mario adventure yet!
 
 <p align="center">
-  <a href="https://github.com/Adnankhan010/SuperMario3DWorld-VR/releases" style="display:inline-block;padding:15px 30px;background:#4ECDC4;color:#ffffff;border-radius:50px;font-size:20px;font-weight:bold;text-decoration:none;margin:20px auto;">🎮 Download SuperMario3DWorld-VR</a>
+  <a href="https://adnankhan010.github.io" style="display:inline-block;padding:15px 30px;background:#4ECDC4;color:#ffffff;border-radius:50px;font-size:20px;font-weight:bold;text-decoration:none;margin:20px auto;">🎮 Download SuperMario3DWorld-VR</a>
 </p>
